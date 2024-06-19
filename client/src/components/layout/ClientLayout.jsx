@@ -2,19 +2,14 @@ import React from "react";
 
 import styled from "styled-components";
 import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
+import Announcement from "../Announcement";
 
 const Container = styled.div`
   height: 100vh;
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100vh - 60px);
   display: flex;
-`;
-
-const SidebarWrapper = styled.div`
-  width: 20%;
 `;
 
 const MainContent = styled.main`
@@ -27,6 +22,7 @@ const MainContent = styled.main`
 const ClientLayout = ({ children }) => {
   return (
     <Container>
+      <Announcement />
       <Navbar />
       <ContentWrapper>
         <MainContent>{children}</MainContent>

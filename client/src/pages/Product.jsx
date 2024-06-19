@@ -7,7 +7,6 @@ import styled from "styled-components";
 
 import { mobile } from "../responsive";
 import { useLocation } from "react-router-dom";
-import { publicRequest } from "../requestMethod";
 import { useDispatch, useSelector } from "react-redux";
 import { addProduct } from "../redux/cartReducer";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -15,6 +14,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import Navbar from "../components/layout/Navbar";
 import ClientLayout from "../components/layout/ClientLayout";
+import useAxiosInstances from "../requestMethod";
 
 const Container = styled.div``;
 
@@ -136,7 +136,7 @@ const Product = () => {
   const [color, setColor] = useState("");
   const [size, setSize] = useState("");
   const dispatch = useDispatch();
-  // const user = useSelector((state) => state.user.currentUser);
+  const {publicRequest} = useAxiosInstances()
 
   const location = useLocation();
   //fetching product based on id

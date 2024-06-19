@@ -1,14 +1,34 @@
 import axios from "axios";
-const user = JSON.parse(localStorage.getItem("user"));
-const TOKEN = user?.accessToken;
+import { useSelector } from "react-redux";
+import { useMemo } from "react";
 
-export const publicRequest = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
-});
+// Define your API base URL
+const baseURL = process.env.REACT_APP_BASE_URL;
 
-export const privateRequest = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
-  headers: {
-    token: `Bearer ${TOKEN}`,
-  },
-});
+const useAxiosInstances = () => {
+  const user = useSelector((state) => state.user.currentUser);
+  const token = user?.accessToken; // Assuming the token is stored in user.currentUser.token
+
+  console.log(user)
+
+  // Create public axios instance
+  const publicRequest = useMemo(() => {
+    return axios.create({
+      baseURL,
+    });
+  }, [baseURL]);
+
+  // Create private axios instance
+  const privateRequest = useMemo(() => {
+    return axios.create({
+      baseURL,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }, [baseURL, token]);
+
+  return { publicRequest, privateRequest };
+};
+
+export default useAxiosInstances;

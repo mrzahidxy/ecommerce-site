@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { privateRequest } from "../requestMethod";
+
 import { mobile } from "../responsive";
 import ClientLayout from "../components/layout/ClientLayout";
+import useAxiosInstances from "../requestMethod";
 
 const Conatiner = styled.div`
   height: 90vh;
@@ -66,6 +67,7 @@ const OrderText = styled.h3`
 const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [orders, setOrders] = useState([]);
+  const {privateRequest} = useAxiosInstances()
 
   const orderHistory = async () => {
     try {

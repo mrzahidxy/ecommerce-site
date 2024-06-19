@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { login } from "../apiCalls";
-import { mobile } from "../responsive";
 import { Link } from "react-router-dom";
+import { loginFailed, loginStart, loginSuccess } from "../redux/userReducer";
+import useAxiosInstances from "../requestMethod";
+import { mobile } from "../responsive";
 
 const Container = styled.div`
   width: 100vw;
@@ -76,10 +77,22 @@ const LogIn = () => {
   const [password, setPassword] = useState("");
   const { isFetching, isError } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const { publicRequest } = useAxiosInstances();
+
+  const login = async (user) => {
+    dispatch(loginStart());
+    try {
+      const res = await publicRequest.post("auth/login", user);
+      dispatch(loginSuccess(res.data));
+      console.log(res.data);
+    } catch (error) {
+      dispatch(loginFailed(error));
+    }
+  };
 
   const handleClick = (e) => {
     e.preventDefault();
-    login(dispatch, { username, password });
+    login({ username, password });
   };
 
   return (
@@ -90,17 +103,16 @@ const LogIn = () => {
           <Input
             placeholder="User Name"
             onChange={(e) => setUsername(e.target.value)}
-          ></Input>
+          />
           <Input
             placeholder="Password"
             type="password"
             onChange={(e) => setPassword(e.target.value)}
-          ></Input>
-
-          <Button onClick={(e) => handleClick(e)} disabled={isFetching}>
+          />
+          <Button onClick={handleClick} disabled={isFetching}>
             Log In
           </Button>
-          {isError && <Error>Somethings went wrong</Error>}
+          {isError && <Error>Something went wrong</Error>}
           <div
             style={{
               display: "flex",
@@ -109,11 +121,10 @@ const LogIn = () => {
             }}
           >
             <LinkInfo>
-              <Link style={{ textDecoration: "none", color: "black" }}> Forget Your Password?</Link>
+              <Link style={{ textDecoration: "none", color: "black" }}>Forget Your Password?</Link>
             </LinkInfo>
-
-            <Link to="/register"  style={{ textDecoration: "none", color: "black" }}>
-              <LinkInfo>Creat An Account!</LinkInfo>
+            <Link to="/register" style={{ textDecoration: "none", color: "black" }}>
+              <LinkInfo>Create An Account!</LinkInfo>
             </Link>
           </div>
         </Form>

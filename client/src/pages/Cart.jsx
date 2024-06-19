@@ -15,8 +15,8 @@ import {
   increaseProduct,
   removeProduct,
 } from "../redux/cartReducer";
-import { privateRequest } from "../requestMethod";
 import ClientLayout from "../components/layout/ClientLayout";
+import useAxiosInstances from "../requestMethod";
 
 
 const Wrapper = styled.div`
@@ -177,6 +177,8 @@ const Cart = () => {
   const history = useHistory();
   const [stripeToken, setStripeToken] = useState("");
   const dispatch = useDispatch();
+
+  const {privateRequest} = useAxiosInstances()
 
   const onToken = (token) => {
     setStripeToken(token);

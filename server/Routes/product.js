@@ -1,12 +1,30 @@
 const Product = require("../models/Product");
 const { verifyTokenAndAdmin } = require("./verifyToken");
 
+
 const router = require("express").Router();
 
-//CREATE
-router.post("/", verifyTokenAndAdmin, async (req, res) => {
+const {storage} = require("../config/cloudinary");
+const multer = require("multer");
+
+
+
+const upload = multer({ storage: storage });
+
+router.post("/", verifyTokenAndAdmin, upload.single('image'), async (req, res) => {
+  console.log(req)
   try {
-    const savedProduct = await Product.create(req.body);
+    // Get the uploaded image URL
+    const imageUrl = req.file.path;
+
+    // Include the image URL in the product data
+    const productData = {
+      ...req.body,
+      img: imageUrl // Assuming your Product model has an 'image' field
+    };
+
+    // Save the product with the image URL
+    const savedProduct = await Product.create(productData);
     res.status(200).json(savedProduct);
   } catch (error) {
     res.status(500).json(error);

@@ -1,5 +1,4 @@
 import React from "react";
-import Announcement from "../components/Announcement";
 import Slider from "../components/Slider";
 import Categories from "../components/Categories";
 import Products from "../components/Products";
@@ -9,7 +8,6 @@ import ClientLayout from "../components/layout/ClientLayout";
 const Home = () => {
   return (
     <>
-      <Announcement />
       <ClientLayout>
         <Slider />
         <Categories />

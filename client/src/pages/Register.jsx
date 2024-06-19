@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { publicRequest } from "../requestMethod";
+
 import { mobile } from "../responsive";
 import Snackbar, { SnackbarOrigin } from "@mui/material/Snackbar";
+import useAxiosInstances from "../requestMethod";
 
 const Container = styled.div`
   width: 100vw;
@@ -91,6 +92,8 @@ const Register = () => {
 
   const history = useHistory();
   // console.log("user", user);
+
+  const {publicRequest} = useAxiosInstances()
 
   const handleRegister = async (e) => {
     e.preventDefault();

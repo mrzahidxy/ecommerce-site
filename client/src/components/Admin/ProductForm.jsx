@@ -1,19 +1,34 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { mobile } from "../../responsive";
 import AdminLayout from "../layout/AdminLayout";
 import {
   Button,
   Card,
   CardContent,
   FormControl,
+  FormControlLabel,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
-  Snackbar,
   Switch,
   TextField,
 } from "@mui/material";
+import useAxiosInstances from "../../requestMethod";
+import { styled as MuiStyled } from "@mui/material/styles";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = MuiStyled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const Form = styled.form`
   display: flex;
@@ -38,17 +53,18 @@ const initialErrors = {
   size: "",
 };
 
-
 const ProductForm = () => {
   const [formValues, setFormValues] = useState(initialFormValues);
-  const [barOpen, setBarOpen] = useState(false);
   const [errors, setErrors] = useState(initialErrors);
 
+  console.log(formValues)
+
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value, type, checked, files } = event.target;
     setFormValues((prevValues) => ({
       ...prevValues,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox" ? checked : type === "file" ? files && files[0] : value,
     }));
   };
 
@@ -63,12 +79,22 @@ const ProductForm = () => {
     return Object.values(tempErrors).every((error) => error === "");
   };
 
+  const { privateRequest } = useAxiosInstances();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validate()) {
-      console.log("Form Values:", formValues);
-      setBarOpen(true);
-      // Add your submit logic here
+      const Formdata = new FormData();
+
+      Formdata.append("title", formValues.title);
+      Formdata.append("desc", formValues.desc);
+      Formdata.append("price", formValues.price);
+      Formdata.append("color", formValues.color);
+      Formdata.append("size", formValues.size);
+      Formdata.append("inStock", formValues.inStock);
+      Formdata.append("image", formValues.image);
+
+      privateRequest.post("/products/", Formdata);
     }
   };
 
@@ -76,24 +102,51 @@ const ProductForm = () => {
     <AdminLayout>
       <Card sx={{ minWidth: 275, maxWidth: 500 }}>
         <CardContent>
+          <h2>Create Product</h2>
+
           <Form onSubmit={handleSubmit}>
-            <h2>Create Product</h2>
-            {["title", "desc", "price"].map((field) => (
-              <FormControl key={field} fullWidth margin="normal"  error={!!errors[field]}>
+            {["title", "desc", "price"].map((name) => (
+              <FormControl key={name} margin="normal">
                 <TextField
-                  name={field}
-                  label={field.charAt(0).toUpperCase() + field.slice(1)}
+                  name={name}
+                  label={name[0].toUpperCase() + name.substring(1)}
                   variant="outlined"
-                  value={formValues[field]}
+                  value={formValues[name]}
                   onChange={handleChange}
+                  error={Boolean(errors[name])}
+                  helperText={errors[name]}
                 />
               </FormControl>
             ))}
+
+            <FormControl key="image" margin="normal">
+              <Button
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+                onChange={handleChange}
+              >
+                Upload file
+                <VisuallyHiddenInput type="file" name="image" />
+              </Button>
+            </FormControl>
+
             {[
-              { name: "color", label: "Color", options: ["red", "blue", "black"] },
+              {
+                name: "color",
+                label: "Color",
+                options: ["red", "blue", "black"],
+              },
               { name: "size", label: "Size", options: ["s", "l", "xl"] },
             ].map(({ name, label, options }) => (
-              <FormControl key={name} variant="outlined" margin="normal"  error={!!errors[name]}>
+              <FormControl
+                key={name}
+                variant="outlined"
+                margin="normal"
+                error={!!errors[name]}
+              >
                 <InputLabel id={`${name}-label`}>{label}</InputLabel>
                 <Select
                   labelId={`${name}-label`}
@@ -102,6 +155,7 @@ const ProductForm = () => {
                   value={formValues[name]}
                   onChange={handleChange}
                   label={label}
+                  error={!!errors[name]}
                 >
                   {options.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -109,13 +163,21 @@ const ProductForm = () => {
                     </MenuItem>
                   ))}
                 </Select>
+                {!!errors[name] && (
+                  <FormHelperText>{errors[name]}</FormHelperText>
+                )}
               </FormControl>
             ))}
             <FormControl margin="normal">
-              <Switch
-                name="inStock"
-                checked={formValues.inStock}
-                onChange={handleChange}
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="inStock"
+                    checked={formValues.inStock}
+                    onChange={handleChange}
+                  />
+                }
+                label="In Stock"
               />
             </FormControl>
             <Button type="submit" variant="contained" color="primary">
@@ -124,13 +186,6 @@ const ProductForm = () => {
           </Form>
         </CardContent>
       </Card>
-
-      <Snackbar
-        open={barOpen}
-        autoHideDuration={6000}
-        message="Created Successfully"
-        onClose={() => setBarOpen(false)}
-      />
     </AdminLayout>
   );
 };

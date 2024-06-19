@@ -52,11 +52,11 @@ const Products = ({ sort, filters, cat, limit=10 }) => {
     <Wrapper>
       <Title>{cat ? cat : "All Products"}</Title>
       <Container>
-        {products?.map((item) => (
+        {products.length > 0 ? products?.map((item) => (
           <div key={item._id}>
             <Product item={item} />
           </div>
-        ))}
+        )) : <span>No products found</span>}
       </Container>
     </Wrapper>
   );
